@@ -33,6 +33,8 @@ class TizenWindowElementary : public TizenWindow {
 
   void* GetRenderTarget() override { return image_; }
 
+  void* GetRenderTargetContainer() override { return elm_win_; }
+
   void* GetRenderTargetDisplay() override { return nullptr; }
 
   int32_t GetRotation() override;

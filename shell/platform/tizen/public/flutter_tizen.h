@@ -167,12 +167,14 @@ FLUTTER_EXPORT FlutterDesktopViewRef FlutterDesktopViewCreateFromElmParent(
 // @warning This API is a work-in-progress and may change.
 FLUTTER_EXPORT void FlutterDesktopViewDestroy(FlutterDesktopViewRef view);
 
-// Returns a handle to evas object that the FlutterView is drawn to.
+// Returns a handle to target container that FlutterView is drawn to.
 //
-// Cast the returned void* to Evas_Object*.
+// Cast the returned void*
+// - view elementary    : to Evas_Object*.
+// - window elementary  : to Evas_Object*
+// - window ecore wl2   : to Ecore_Wl2_Window*
 // @warning This API is a work-in-progress and may change.
-FLUTTER_EXPORT void* FlutterDesktopViewGetEvasObject(
-    FlutterDesktopViewRef view);
+FLUTTER_EXPORT void* FlutterDesktopViewGetContainer(FlutterDesktopViewRef view);
 
 // Resizes the view.
 // @warning This API is a work-in-progress and may change.
