@@ -34,7 +34,7 @@ class TizenWindowEcoreWl2 : public TizenWindow {
 
   void* GetRenderTarget() override { return ecore_wl2_egl_window_; }
 
-  void* GetRenderTargetContainer() override { return ecore_wl2_window_; }
+  void* GetNativeHandle() override { return ecore_wl2_window_; }
 
   void* GetRenderTargetDisplay() override { return wl2_display_; }
 
@@ -43,8 +43,6 @@ class TizenWindowEcoreWl2 : public TizenWindow {
   int32_t GetDpi() override;
 
   uintptr_t GetWindowId() override;
-
-  void* GetWindowHandle() override { return ecore_wl2_window_; }
 
   void SetPreferredOrientations(const std::vector<int>& rotations) override;
 

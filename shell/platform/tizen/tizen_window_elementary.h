@@ -33,7 +33,7 @@ class TizenWindowElementary : public TizenWindow {
 
   void* GetRenderTarget() override { return image_; }
 
-  void* GetRenderTargetContainer() override { return elm_win_; }
+  void* GetNativeHandle() override { return elm_win_; }
 
   void* GetRenderTargetDisplay() override { return nullptr; }
 
@@ -42,8 +42,6 @@ class TizenWindowElementary : public TizenWindow {
   int32_t GetDpi() override;
 
   uintptr_t GetWindowId() override;
-
-  void* GetWindowHandle() override { return elm_win_; }
 
   void SetPreferredOrientations(const std::vector<int>& rotations) override;
 
