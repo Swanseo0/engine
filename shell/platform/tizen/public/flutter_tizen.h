@@ -185,11 +185,8 @@ FLUTTER_EXPORT void FlutterDesktopViewResize(FlutterDesktopViewRef view,
 
 // ========== Plugin Registrar (extensions) ==========
 
-// Returns the window associated with this registrar's engine instance.
-//
-// If the app runs on a wearable device, cast void* to Evas_Object*,
-// otherwise cast it to Ecore_Wl2_Window*.
-FLUTTER_EXPORT void* FlutterDesktopPluginRegistrarGetNativeHandle(
+// Returns the view associated with this registrar's engine instance.
+FLUTTER_EXPORT FlutterDesktopViewRef FlutterDesktopPluginRegistrarGetView(
     FlutterDesktopPluginRegistrarRef registrar);
 
 #if defined(__cplusplus)

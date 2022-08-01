@@ -82,10 +82,9 @@ void FlutterDesktopEngineShutdown(FlutterDesktopEngineRef engine_ref) {
   delete engine;
 }
 
-void* FlutterDesktopPluginRegistrarGetNativeHandle(
+FlutterDesktopViewRef FlutterDesktopPluginRegistrarGetView(
     FlutterDesktopPluginRegistrarRef registrar) {
-  flutter::TizenViewBase* tizen_view = registrar->engine->view()->tizen_view();
-  return tizen_view->GetNativeHandle();
+  return HandleForView(registrar->engine->view());
 }
 
 void FlutterDesktopPluginRegistrarEnableInputBlocking(
