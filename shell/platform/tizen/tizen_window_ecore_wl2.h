@@ -34,9 +34,9 @@ class TizenWindowEcoreWl2 : public TizenWindow {
 
   void* GetRenderTarget() override { return ecore_wl2_egl_window_; }
 
-  void* GetNativeHandle() override { return ecore_wl2_window_; }
-
   void* GetRenderTargetDisplay() override { return wl2_display_; }
+
+  void* GetNativeHandle() override { return ecore_wl2_window_; }
 
   int32_t GetRotation() override;
 
