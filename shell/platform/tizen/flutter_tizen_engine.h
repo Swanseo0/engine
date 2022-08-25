@@ -62,11 +62,15 @@ class FlutterTizenEngine {
   // Creates a GL renderer from the given type.
   void CreateRenderer(FlutterDesktopRendererType renderer_type);
 
+  bool RunOrSpawnEngine();
+
   // Starts running the engine with the given entrypoint. If null, defaults to
   // main().
   //
   // Returns false if the engine couldn't be started.
   bool RunEngine();
+
+  bool SpawnEngine(FlutterTizenEngine* spawner);
 
   // Returns true if the engine is currently running.
   bool IsRunning() { return engine_ != nullptr; }
