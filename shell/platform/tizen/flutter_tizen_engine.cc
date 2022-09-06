@@ -293,9 +293,9 @@ bool FlutterTizenEngine::SpawnEngine(FlutterTizenEngine* spawner) {
     }
   }
 
-  // FlutterProjectArgs is expecting a full argv, so when processing it for
-  // flags the first item is treated as the executable and ignored. Add a dummy
-  // value so that all provided arguments are used.
+  // In RunEngine, FlutterProjectArgs is expecting a full argv, but
+  // embedder's spawn api uses spawner's taskrunners, so SpawnEngine's
+  // FlutterProjectArgs is expecting a argv except taskrunners.
   std::vector<std::string> engine_args = project_->engine_arguments();
   std::vector<const char*> engine_argv = {"placeholder"};
   std::transform(
@@ -396,6 +396,9 @@ bool FlutterTizenEngine::SpawnEngine(FlutterTizenEngine* spawner) {
 
 bool FlutterTizenEngine::StopEngine() {
   if (engine_) {
+    if (remove_callback_) {
+      remove_callback_(engine_name_);
+    }
     if (platform_view_channel_) {
       platform_view_channel_->Dispose();
     }
@@ -418,6 +421,15 @@ bool FlutterTizenEngine::StopEngine() {
 
 void FlutterTizenEngine::SetView(FlutterTizenView* view) {
   view_ = view;
+}
+
+void FlutterTizenEngine::SetEngineName(std::string name) {
+  engine_name_ = name;
+}
+
+void FlutterTizenEngine::SetRemoveCallback(
+    std::function<void(std::string name)> remove_callback) {
+  remove_callback_ = remove_callback;
 }
 
 void FlutterTizenEngine::AddPluginRegistrarDestructionCallback(
@@ -704,81 +716,5 @@ void FlutterTizenEngine::OnUpdateSemanticsCustomActions(
   }
 }
 #endif
-
-// FlutterProjectArgs FlutterTizenEngine::GetProjectArgsForSpawn() {
-//   std::string assets_path_string = project_->assets_path().u8string();
-//   std::string icu_path_string = project_->icu_path().u8string();
-//   if (embedder_api_.RunsAOTCompiledDartCode()) {
-//     aot_data_ = project_->LoadAotData(embedder_api_);
-//     if (!aot_data_) {
-//       FT_LOG(Error) << "Unable to start engine without AOT data.";
-//     }
-//   }
-
-//   // FlutterProjectArgs is expecting a full argv, so when processing it for
-//   // flags the first item is treated as the executable and ignored. Add a
-//   dummy
-//   // value so that all provided arguments are used.
-//   std::vector<std::string> engine_args = project_->engine_arguments();
-//   std::vector<const char*> engine_argv = {"placeholder"};
-//   std::transform(
-//       engine_args.begin(), engine_args.end(),
-//       std::back_inserter(engine_argv),
-//       [](const std::string& arg) -> const char* { return arg.c_str(); });
-
-//   const std::vector<std::string>& entrypoint_args =
-//       project_->dart_entrypoint_arguments();
-//   std::vector<const char*> entrypoint_argv;
-//   std::transform(
-//       entrypoint_args.begin(), entrypoint_args.end(),
-//       std::back_inserter(entrypoint_argv),
-//       [](const std::string& arg) -> const char* { return arg.c_str(); });
-
-//   FlutterProjectArgs args = {};
-//   args.struct_size = sizeof(FlutterProjectArgs);
-//   args.assets_path = assets_path_string.c_str();
-//   args.icu_data_path = icu_path_string.c_str();
-//   args.command_line_argc = static_cast<int>(engine_argv.size());
-//   args.command_line_argv =
-//       engine_argv.size() > 0 ? engine_argv.data() : nullptr;
-//   args.dart_entrypoint_argc = static_cast<int>(entrypoint_argv.size());
-//   args.dart_entrypoint_argv =
-//       entrypoint_argv.size() > 0 ? entrypoint_argv.data() : nullptr;
-//   args.platform_message_callback =
-//       [](const FlutterPlatformMessage* engine_message, void* user_data) {
-//         if (engine_message->struct_size != sizeof(FlutterPlatformMessage)) {
-//           FT_LOG(Error) << "Invalid message size received. Expected: "
-//                         << sizeof(FlutterPlatformMessage) << ", but received
-//                         "
-//                         << engine_message->struct_size;
-//           return;
-//         }
-//         auto* engine = reinterpret_cast<FlutterTizenEngine*>(user_data);
-//         FlutterDesktopMessage message =
-//             engine->ConvertToDesktopMessage(*engine_message);
-//         engine->message_dispatcher_->HandleMessage(message);
-//       };
-//   if (aot_data_) {
-//     args.aot_data = aot_data_.get();
-//   }
-//   if (!project_->custom_dart_entrypoint().empty()) {
-//     args.custom_dart_entrypoint = project_->custom_dart_entrypoint().c_str();
-//   }
-// #ifndef WEARABLE_PROFILE
-//   args.update_semantics_node_callback = OnUpdateSemanticsNode;
-//   args.update_semantics_custom_action_callback =
-//   OnUpdateSemanticsCustomActions;
-
-//   if (IsHeaded() && renderer_->type() == FlutterDesktopRendererType::kEGL) {
-//     vsync_waiter_ = std::make_unique<TizenVsyncWaiter>(this);
-//     args.vsync_callback = [](void* user_data, intptr_t baton) -> void {
-//       auto* engine = reinterpret_cast<FlutterTizenEngine*>(user_data);
-//       engine->vsync_waiter_->AsyncWaitForVsync(baton);
-//     };
-//   }
-// #endif
-
-//   return args;
-// }
 
 }  // namespace flutter

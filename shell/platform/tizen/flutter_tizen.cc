@@ -69,9 +69,11 @@ FlutterDesktopEngineRef FlutterDesktopEngineCreate(
   if (project.GetArgumentValue("--tizen-logging-port", &logging_port)) {
     flutter::Logger::SetLoggingPort(std::stoi(logging_port));
   }
-  flutter::Logger::Start();
-
   auto& engine_group = flutter::FlutterTizenEngineGroup::GetInstance();
+
+  if (engine_group.GetEngineCount() <= 0) {
+    flutter::Logger::Start();
+  }
   auto engine = engine_group.MakeEngineWithProject(project);
   return HandleForEngine(engine);
 }
@@ -81,7 +83,10 @@ bool FlutterDesktopEngineRun(const FlutterDesktopEngineRef engine) {
 }
 
 void FlutterDesktopEngineShutdown(FlutterDesktopEngineRef engine_ref) {
-  flutter::Logger::Stop();
+  auto& engine_group = flutter::FlutterTizenEngineGroup::GetInstance();
+  if (engine_group.GetEngineCount() <= 1) {
+    flutter::Logger::Stop();
+  }
 
   flutter::FlutterTizenEngine* engine = EngineFromHandle(engine_ref);
   engine->StopEngine();

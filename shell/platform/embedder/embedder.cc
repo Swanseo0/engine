@@ -1200,8 +1200,6 @@ FlutterEngineResult FlutterEngineSpawn(size_t version,
     }
   }
 
-  PopulateSnapshotMappingCallbacks(args, settings);
-
   settings.icu_data_path = icu_data_path;
   settings.assets_path = args->assets_path;
   settings.leak_vm = !SAFE_ACCESS(args, shutdown_dart_vm_when_done, false);
