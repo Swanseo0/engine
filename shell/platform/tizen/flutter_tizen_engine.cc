@@ -396,6 +396,7 @@ bool FlutterTizenEngine::SpawnEngine(FlutterTizenEngine* spawner) {
 
 bool FlutterTizenEngine::StopEngine() {
   if (engine_) {
+    remove_callback_(engine_name_);
     if (platform_view_channel_) {
       platform_view_channel_->Dispose();
     }
@@ -418,6 +419,15 @@ bool FlutterTizenEngine::StopEngine() {
 
 void FlutterTizenEngine::SetView(FlutterTizenView* view) {
   view_ = view;
+}
+
+void FlutterTizenEngine::SetEngineName(std::string name) {
+  engine_name_ = name;
+}
+
+void FlutterTizenEngine::SetRemoveCallback(
+    std::function<void(std::string name)> remove_callback) {
+  remove_callback_ = remove_callback;
 }
 
 void FlutterTizenEngine::AddPluginRegistrarDestructionCallback(

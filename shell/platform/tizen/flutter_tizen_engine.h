@@ -81,9 +81,15 @@ class FlutterTizenEngine {
   // Sets the view that is displaying this engine's content.
   void SetView(FlutterTizenView* view);
 
+  void SetEngineName(std::string name);
+
+  void SetRemoveCallback(std::function<void(std::string name)> remove_callback);
+
   // The view displaying this engine's content, if any. This will be null for
   // headless engines.
   FlutterTizenView* view() { return view_; }
+
+  std::string name() { return engine_name_; }
 
   FlutterDesktopMessengerRef messenger() { return messenger_.get(); }
 
@@ -218,6 +224,10 @@ class FlutterTizenEngine {
 
   // The Flutter engine instance.
   FLUTTER_API_SYMBOL(FlutterEngine) engine_ = nullptr;
+
+  std::string engine_name_;
+
+  std::function<void(std::string name)> remove_callback_;
 
   // The proc table of the embedder APIs.
   FlutterEngineProcTable embedder_api_ = {};
