@@ -35,6 +35,8 @@ constexpr char kSetEnabledSystemUiOverlaysMethod[] =
     "SystemChrome.setEnabledSystemUIOverlays";
 constexpr char kSetPreferredOrientationsMethod[] =
     "SystemChrome.setPreferredOrientations";
+constexpr char kSetSystemUIOverlayStyleMethod[] =
+    "SystemChrome.setSystemUIOverlayStyle";
 
 constexpr char kTextKey[] = "text";
 constexpr char kValueKey[] = "value";
@@ -127,9 +129,6 @@ void PlatformChannel::HandleMethodCall(
   } else if (method == kRestoreSystemUiOverlaysMethod) {
     RestoreSystemUiOverlays();
     result->Success();
-  } else if (method == kSetApplicationSwitcherDescriptionMethod) {
-    // Not supported on Tizen. Ignore.
-    result->Success();
   } else if (method == kSetEnabledSystemUiOverlaysMethod) {
     const rapidjson::Document& list = arguments[0];
     std::vector<std::string> overlays;
@@ -145,6 +144,10 @@ void PlatformChannel::HandleMethodCall(
       orientations.push_back(iter->GetString());
     }
     SetPreferredOrientations(orientations);
+    result->Success();
+  } else if (method == kSetApplicationSwitcherDescriptionMethod ||
+             method == kSetSystemUIOverlayStyleMethod) {
+    // Not supported on Tizen. Ignore.
     result->Success();
   } else {
     FT_LOG(Info) << "Unimplemented method: " << method;
