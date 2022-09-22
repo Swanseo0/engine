@@ -20,12 +20,15 @@ class TizenView : public TizenViewBase {
 
   TizenViewType GetType() override { return TizenViewType::kView; };
 
+  void Unfocus() { focused_ = false; };
+
  protected:
   explicit TizenView(int32_t width, int32_t height)
       : initial_width_(width), initial_height_(height) {}
 
   int32_t initial_width_ = 0;
   int32_t initial_height_ = 0;
+  bool focused_ = false;
 };
 
 }  // namespace flutter
