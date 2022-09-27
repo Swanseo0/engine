@@ -13,6 +13,7 @@
 #include "flutter/shell/platform/tizen/flutter_tizen_view.h"
 #include "flutter/shell/platform/tizen/logger.h"
 #include "flutter/shell/platform/tizen/public/flutter_platform_view.h"
+#include "flutter/shell/platform/tizen/tizen_view.h"
 #include "flutter/shell/platform/tizen/tizen_window.h"
 #ifndef WEARABLE_PROFILE
 #include "flutter/shell/platform/tizen/tizen_window_ecore_wl2.h"
@@ -272,6 +273,23 @@ void FlutterDesktopViewOnKeyEvent(FlutterDesktopViewRef view,
                                   bool is_down) {
   ViewFromHandle(view)->OnKey(key, string, nullptr, modifiers, scan_code,
                               is_down);
+}
+
+void FlutterDesktopViewSetFocus(FlutterDesktopViewRef view, bool focused) {
+  auto* tizen_view = reinterpret_cast<flutter::TizenViewBase*>(
+      ViewFromHandle(view)->tizen_view());
+  if (tizen_view->GetType() == flutter::TizenViewType::kView) {
+    reinterpret_cast<flutter::TizenView*>(tizen_view)->SetFocus(focused);
+  }
+}
+
+bool FlutterDesktopViewIsFocused(FlutterDesktopViewRef view) {
+  auto* tizen_view = reinterpret_cast<flutter::TizenViewBase*>(
+      ViewFromHandle(view)->tizen_view());
+  if (tizen_view->GetType() == flutter::TizenViewType::kView) {
+    return reinterpret_cast<flutter::TizenView*>(tizen_view)->focused();
+  }
+  return false;
 }
 
 void FlutterDesktopRegisterViewFactory(
