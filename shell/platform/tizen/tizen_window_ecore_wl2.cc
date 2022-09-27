@@ -216,15 +216,17 @@ void TizenWindowEcoreWl2::RegisterEventHandlers() {
           auto* configure_event =
               reinterpret_cast<Ecore_Wl2_Event_Window_Configure*>(event);
           if (configure_event->win == self->GetWindowId()) {
-            ecore_wl2_egl_window_resize_with_rotation(
-                self->ecore_wl2_egl_window_, configure_event->x,
-                configure_event->y, configure_event->w, configure_event->h,
-                self->GetRotation());
+            if (configure_event->w != 0 && configure_event->h != 0) {
+              ecore_wl2_egl_window_resize_with_rotation(
+                  self->ecore_wl2_egl_window_, configure_event->x,
+                  configure_event->y, configure_event->w, configure_event->h,
+                  self->GetRotation());
 
-            self->view_delegate_->OnResize(
-                configure_event->x, configure_event->y, configure_event->w,
-                configure_event->h);
-            return ECORE_CALLBACK_DONE;
+              self->view_delegate_->OnResize(
+                  configure_event->x, configure_event->y, configure_event->w,
+                  configure_event->h);
+              return ECORE_CALLBACK_DONE;
+            }
           }
         }
         return ECORE_CALLBACK_PASS_ON;
