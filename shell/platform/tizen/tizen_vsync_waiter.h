@@ -23,6 +23,7 @@ class TdmClient {
   virtual ~TdmClient();
 
   bool IsValid();
+  void OnEngineStop();
   void AwaitVblank(intptr_t baton);
 
  private:

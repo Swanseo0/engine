@@ -32,7 +32,7 @@ TizenVsyncWaiter::TizenVsyncWaiter(FlutterTizenEngine* engine) {
 }
 
 TizenVsyncWaiter::~TizenVsyncWaiter() {
-  tdm_client_.reset();
+  tdm_client_->OnEngineStop();
 
   SendMessage(kMessageQuit, 0);
 
@@ -130,10 +130,6 @@ TdmClient::TdmClient(FlutterTizenEngine* engine) {
 }
 
 TdmClient::~TdmClient() {
-  {
-    std::lock_guard<std::mutex> lock(engine_mutex_);
-    engine_ = nullptr;
-  }
   if (vblank_) {
     tdm_client_vblank_destroy(vblank_);
     vblank_ = nullptr;
@@ -145,6 +141,15 @@ TdmClient::~TdmClient() {
   }
 }
 
+bool TdmClient::IsValid() {
+  return vblank_ && client_;
+}
+
+void TdmClient::OnEngineStop() {
+  std::lock_guard<std::mutex> lock(engine_mutex_);
+  engine_ = nullptr;
+}
+
 void TdmClient::AwaitVblank(intptr_t baton) {
   baton_ = baton;
   tdm_error ret = tdm_client_vblank_wait(vblank_, 1, VblankCallback, this);
@@ -153,10 +158,6 @@ void TdmClient::AwaitVblank(intptr_t baton) {
     return;
   }
   tdm_client_handle_events(client_);
-}
-
-bool TdmClient::IsValid() {
-  return vblank_ && client_;
 }
 
 void TdmClient::VblankCallback(tdm_client_vblank* vblank,
