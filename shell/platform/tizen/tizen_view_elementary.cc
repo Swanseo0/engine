@@ -130,6 +130,7 @@ void TizenViewElementary::RegisterEventHandlers() {
         auto* self = reinterpret_cast<TizenViewElementary*>(data);
         if (self->view_delegate_) {
           if (self->container_ == object) {
+            self->focused_ = true;
             auto* mouse_event =
                 reinterpret_cast<Evas_Event_Mouse_Down*>(event_info);
             TizenGeometry geometry = self->GetGeometry();
@@ -220,25 +221,30 @@ void TizenViewElementary::RegisterEventHandlers() {
       container_, EVAS_CALLBACK_MOUSE_WHEEL,
       evas_object_callbacks_[EVAS_CALLBACK_MOUSE_WHEEL], this);
 
+  const int32_t kKeyReturn = 0x00000024;
   evas_object_callbacks_[EVAS_CALLBACK_KEY_DOWN] = [](void* data, Evas* evas,
                                                       Evas_Object* object,
                                                       void* event_info) {
     auto* self = reinterpret_cast<TizenViewElementary*>(data);
     if (self->view_delegate_) {
-      if (self->container_ == object && self->focused_) {
+      if (self->container_ == object) {
         auto* key_event = reinterpret_cast<Evas_Event_Key_Down*>(event_info);
-        bool handled = false;
-        key_event->event_flags =
-            Evas_Event_Flags(key_event->event_flags | EVAS_EVENT_FLAG_ON_HOLD);
-        if (self->input_method_context_->IsInputPanelShown()) {
-          handled =
-              self->input_method_context_->HandleEvasEventKeyDown(key_event);
-        }
-        if (!handled) {
-          self->view_delegate_->OnKey(
-              key_event->key, key_event->string, key_event->compose,
-              EvasModifierToEcoreEventModifiers(key_event->modifiers),
-              key_event->keycode, true);
+        if (self->focused_) {
+          bool handled = false;
+          key_event->event_flags = Evas_Event_Flags(key_event->event_flags |
+                                                    EVAS_EVENT_FLAG_ON_HOLD);
+          if (self->input_method_context_->IsInputPanelShown()) {
+            handled =
+                self->input_method_context_->HandleEvasEventKeyDown(key_event);
+          }
+          if (!handled) {
+            self->view_delegate_->OnKey(
+                key_event->key, key_event->string, key_event->compose,
+                EvasModifierToEcoreEventModifiers(key_event->modifiers),
+                key_event->keycode, true);
+          }
+        } else if (key_event->keycode == kKeyReturn) {
+          self->focused_ = true;
         }
       }
     }
@@ -273,15 +279,15 @@ void TizenViewElementary::RegisterEventHandlers() {
                                  evas_object_callbacks_[EVAS_CALLBACK_KEY_UP],
                                  this);
 
-  focused_callback_ = [](void* data, Evas_Object* object, void* event_info) {
+  unfocused_callback_ = [](void* data, Evas_Object* object, void* event_info) {
     auto* self = reinterpret_cast<TizenViewElementary*>(data);
     if (self->view_delegate_) {
       if (self->container_ == object) {
-        self->focused_ = true;
+        self->focused_ = false;
       }
     }
   };
-  evas_object_smart_callback_add(container_, "focused", focused_callback_,
+  evas_object_smart_callback_add(container_, "unfocused", unfocused_callback_,
                                  this);
 }
 
@@ -305,7 +311,7 @@ void TizenViewElementary::UnregisterEventHandlers() {
       evas_object_callbacks_[EVAS_CALLBACK_KEY_DOWN]);
   evas_object_event_callback_del(container_, EVAS_CALLBACK_KEY_UP,
                                  evas_object_callbacks_[EVAS_CALLBACK_KEY_UP]);
-  evas_object_smart_callback_del(container_, "focused", focused_callback_);
+  evas_object_smart_callback_del(container_, "unfocused", unfocused_callback_);
 }
 
 TizenGeometry TizenViewElementary::GetGeometry() {
