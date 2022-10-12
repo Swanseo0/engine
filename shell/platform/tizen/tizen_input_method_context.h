@@ -35,6 +35,18 @@ class TizenInputMethodContext {
 
   bool HandleEvasEventKeyUp(Evas_Event_Key_Up* event);
 
+#ifdef NUI_SUPPORT
+  bool HandleNuiKeyEvent(const char* device_name,
+                         uint32_t device_class,
+                         uint32_t device_subclass,
+                         const char* key,
+                         const char* string,
+                         uint32_t modifiers,
+                         uint32_t scan_code,
+                         size_t timestamp,
+                         bool is_down);
+#endif
+
   InputPanelGeometry GetInputPanelGeometry();
 
   void ResetInputMethodContext();
@@ -70,6 +82,9 @@ class TizenInputMethodContext {
   void SetContextOptions();
   void SetInputPanelOptions();
 
+#ifdef NUI_SUPPORT
+  Ecore_Device* ecore_device_ = nullptr;
+#endif
   Ecore_IMF_Context* imf_context_ = nullptr;
   OnCommit on_commit_;
   OnPreeditChanged on_preedit_changed_;

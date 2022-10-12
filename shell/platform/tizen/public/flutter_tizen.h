@@ -210,10 +210,14 @@ FLUTTER_EXPORT void FlutterDesktopViewOnPointerEvent(
     int32_t device_id);
 
 FLUTTER_EXPORT void FlutterDesktopViewOnKeyEvent(FlutterDesktopViewRef view,
+                                                 const char* device_name,
+                                                 uint32_t device_class,
+                                                 uint32_t device_subclass,
                                                  const char* key,
                                                  const char* string,
                                                  uint32_t modifiers,
                                                  uint32_t scan_code,
+                                                 size_t timestamp,
                                                  bool is_down);
 
 FLUTTER_EXPORT void FlutterDesktopViewSetFocus(FlutterDesktopViewRef view,
