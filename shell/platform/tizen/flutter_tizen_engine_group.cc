@@ -4,30 +4,34 @@ namespace flutter {
 
 FlutterTizenEngine* FlutterTizenEngineGroup::MakeEngineWithProject(
     const FlutterProjectBundle& project) {
-  std::shared_ptr<FlutterTizenEngine> engine = nullptr;
-  engine = std::make_shared<flutter::FlutterTizenEngine>(project);
+  std::unique_ptr<FlutterTizenEngine> engine =
+      std::make_unique<flutter::FlutterTizenEngine>(project);
   engine->SetEngineName(std::string("FlutterTizenEngine") +
                         std::to_string(engines_.size()));
-  engine->SetRemoveCallback([&](std::string name) {
-    for (size_t i = 0; i < engines_.size(); ++i) {
-      if (engines_[i]->name() == name) {
-        engines_.erase(engines_.begin() + i);
-        return;
-      }
-    }
-  });
 
-  engines_.push_back(engine);
+  engines_.push_back(std::move(engine));
 
-  return engine.get();
+  return engines_.back().get();
+}
+
+FlutterTizenEngine* FlutterTizenEngineGroup::GetEngineSpawner() {
+  return engines_[0].get();
 }
 
 int FlutterTizenEngineGroup::GetEngineCount() {
   return engines_.size();
 }
 
-FlutterTizenEngine* FlutterTizenEngineGroup::GetEngineSpawner() {
-  return engines_[0].get();
+void FlutterTizenEngineGroup::RemoveEngine(FlutterTizenEngine* engine) {
+  if (engine) {
+    for (auto iter = engines_.begin(); iter != engines_.end(); ++iter) {
+      if (engine->name() == iter->get()->name()) {
+        engine->StopEngine();
+        engines_.erase(iter);
+        return;
+      }
+    }
+  }
 }
 
 }  // namespace flutter

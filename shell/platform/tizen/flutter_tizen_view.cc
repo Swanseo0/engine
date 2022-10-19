@@ -10,6 +10,7 @@
 #ifdef NUI_SUPPORT
 #include "flutter/shell/platform/tizen/tizen_view_nui.h"
 #endif
+#include "flutter/shell/platform/tizen/flutter_tizen_engine_group.h"
 #include "flutter/shell/platform/tizen/tizen_window.h"
 
 namespace {
@@ -58,12 +59,14 @@ FlutterTizenView::FlutterTizenView(std::unique_ptr<TizenViewBase> tizen_view)
 
 FlutterTizenView::~FlutterTizenView() {
   if (engine_) {
-    engine_->StopEngine();
+    auto& engine_group = FlutterTizenEngineGroup::GetInstance();
+    engine_group.RemoveEngine(engine_);
+    engine_ = nullptr;
   }
   DestroyRenderSurface();
 }
 
-void FlutterTizenView::SetEngine(std::unique_ptr<FlutterTizenEngine> engine) {
+void FlutterTizenView::SetEngine(FlutterTizenEngine* engine) {
   engine_ = std::move(engine);
   engine_->SetView(this);
 
@@ -276,8 +279,7 @@ void FlutterTizenView::OnKey(const char* key,
   if (engine_->key_event_channel()) {
     engine_->key_event_channel()->SendKey(
         key, string, compose, modifiers, scan_code, is_down,
-        [engine = engine_.get(), symbol = std::string(key),
-         is_down](bool handled) {
+        [engine = engine_, symbol = std::string(key), is_down](bool handled) {
           if (handled) {
             return;
           }

@@ -89,8 +89,7 @@ void FlutterDesktopEngineShutdown(FlutterDesktopEngineRef engine_ref) {
   }
 
   flutter::FlutterTizenEngine* engine = EngineFromHandle(engine_ref);
-  engine->StopEngine();
-  delete engine;
+  engine_group.RemoveEngine(engine);
 }
 
 FlutterDesktopViewRef FlutterDesktopPluginRegistrarGetView(
@@ -224,9 +223,7 @@ FlutterDesktopViewRef FlutterDesktopViewCreateFromNewWindow(
 
   auto view = std::make_unique<flutter::FlutterTizenView>(std::move(window));
 
-  // Take ownership of the engine, starting it if necessary.
-  view->SetEngine(
-      std::unique_ptr<flutter::FlutterTizenEngine>(EngineFromHandle(engine)));
+  view->SetEngine(EngineFromHandle(engine));
   view->CreateRenderSurface(window_properties.renderer_type);
   if (!view->engine()->IsRunning()) {
     if (!view->engine()->RunOrSpawnEngine()) {

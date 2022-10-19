@@ -17,12 +17,14 @@ class FlutterTizenEngineGroup {
   FlutterTizenEngine* MakeEngineWithProject(
       const FlutterProjectBundle& project);
 
-  int GetEngineCount();
-
   FlutterTizenEngine* GetEngineSpawner();
 
+  int GetEngineCount();
+
+  void RemoveEngine(FlutterTizenEngine* engine);
+
  private:
-  std::vector<std::shared_ptr<FlutterTizenEngine>> engines_;
+  std::vector<std::unique_ptr<FlutterTizenEngine>> engines_;
 };
 
 }  // namespace flutter
