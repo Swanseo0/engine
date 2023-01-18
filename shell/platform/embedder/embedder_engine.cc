@@ -291,4 +291,29 @@ Shell& EmbedderEngine::GetShell() {
   return *shell_.get();
 }
 
+std::unique_ptr<EmbedderEngine> EmbedderEngine::SpawnEmbedderEngine(
+    flutter::Settings settings,
+    RunConfiguration run_configuration,
+    Shell::CreateCallback<PlatformView> on_create_platform_view,
+    Shell::CreateCallback<Rasterizer> on_create_rasterizer,
+    std::unique_ptr<EmbedderExternalTextureResolver>
+        external_texture_resolver) {
+  auto engine = std::make_unique<EmbedderEngine>(
+      thread_host_, thread_host_->GetTaskRunners(),
+      std::move(settings),           //
+      std::move(run_configuration),  //
+      on_create_platform_view,       //
+      on_create_rasterizer,          //
+      std::move(external_texture_resolver));
+
+  auto shell =
+      shell_->Spawn(std::move(engine->run_configuration_), std::string(),
+                    on_create_platform_view, on_create_rasterizer);
+
+  engine->shell_ = std::move(shell);
+  engine->shell_args_.reset();
+
+  return engine;
+}
+
 }  // namespace flutter

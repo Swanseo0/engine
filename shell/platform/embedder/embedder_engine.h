@@ -85,6 +85,14 @@ class EmbedderEngine {
 
   Shell& GetShell();
 
+  std::unique_ptr<EmbedderEngine> SpawnEmbedderEngine(
+      flutter::Settings settings,
+      RunConfiguration run_configuration,
+      Shell::CreateCallback<PlatformView> on_create_platform_view,
+      Shell::CreateCallback<Rasterizer> on_create_rasterizer,
+      std::unique_ptr<EmbedderExternalTextureResolver>
+          external_texture_resolver);
+
  private:
   const std::shared_ptr<EmbedderThreadHost> thread_host_;
   TaskRunners task_runners_;
