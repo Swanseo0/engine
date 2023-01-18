@@ -22,7 +22,7 @@ struct ShellArgs {
 };
 
 EmbedderEngine::EmbedderEngine(
-    std::unique_ptr<EmbedderThreadHost> thread_host,
+    std::shared_ptr<EmbedderThreadHost> thread_host,
     flutter::TaskRunners task_runners,
     flutter::Settings settings,
     RunConfiguration run_configuration,

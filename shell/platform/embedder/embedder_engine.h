@@ -22,7 +22,7 @@ struct ShellArgs;
 // instance of the Flutter engine.
 class EmbedderEngine {
  public:
-  EmbedderEngine(std::unique_ptr<EmbedderThreadHost> thread_host,
+  EmbedderEngine(std::shared_ptr<EmbedderThreadHost> thread_host,
                  TaskRunners task_runners,
                  Settings settings,
                  RunConfiguration run_configuration,
@@ -86,7 +86,7 @@ class EmbedderEngine {
   Shell& GetShell();
 
  private:
-  const std::unique_ptr<EmbedderThreadHost> thread_host_;
+  const std::shared_ptr<EmbedderThreadHost> thread_host_;
   TaskRunners task_runners_;
   RunConfiguration run_configuration_;
   std::unique_ptr<ShellArgs> shell_args_;
