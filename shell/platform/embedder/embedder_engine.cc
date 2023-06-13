@@ -22,14 +22,14 @@ struct ShellArgs {
 };
 
 EmbedderEngine::EmbedderEngine(
-    std::unique_ptr<EmbedderThreadHost> thread_host,
+    std::shared_ptr<EmbedderThreadHost> thread_host,
     const flutter::TaskRunners& task_runners,
     const flutter::Settings& settings,
     RunConfiguration run_configuration,
     const Shell::CreateCallback<PlatformView>& on_create_platform_view,
     const Shell::CreateCallback<Rasterizer>& on_create_rasterizer,
     std::unique_ptr<EmbedderExternalTextureResolver> external_texture_resolver)
-    : thread_host_(std::move(thread_host)),
+    : thread_host_(thread_host),
       task_runners_(task_runners),
       run_configuration_(std::move(run_configuration)),
       shell_args_(std::make_unique<ShellArgs>(settings,
@@ -291,6 +291,31 @@ bool EmbedderEngine::ScheduleFrame() {
 Shell& EmbedderEngine::GetShell() {
   FML_DCHECK(shell_);
   return *shell_.get();
+}
+
+std::unique_ptr<EmbedderEngine> EmbedderEngine::SpawnEmbedderEngine(
+    flutter::Settings settings,
+    RunConfiguration run_configuration,
+    Shell::CreateCallback<PlatformView> on_create_platform_view,
+    Shell::CreateCallback<Rasterizer> on_create_rasterizer,
+    std::unique_ptr<EmbedderExternalTextureResolver>
+        external_texture_resolver) {
+  auto engine = std::make_unique<EmbedderEngine>(
+      thread_host_, thread_host_->GetTaskRunners(),
+      std::move(settings),           //
+      std::move(run_configuration),  //
+      on_create_platform_view,       //
+      on_create_rasterizer,          //
+      std::move(external_texture_resolver));
+
+  auto shell =
+      shell_->Spawn(std::move(engine->run_configuration_), std::string(),
+                    on_create_platform_view, on_create_rasterizer);
+
+  engine->shell_ = std::move(shell);
+  engine->shell_args_.reset();
+
+  return engine;
 }
 
 }  // namespace flutter
